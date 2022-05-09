@@ -12,7 +12,6 @@ class User(Base):
 
     documents = relationship("Document", back_populates="owner")
 
-
 class Document(Base):
     __tablename__ = "documents"
 
