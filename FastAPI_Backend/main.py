@@ -1,29 +1,40 @@
-from cgi import test
-from fastapi import FastAPI
-from pydantic import BaseModel
-# import numpy as np
+from fastapi import FastAPI, Depends
+from starlette.responses import RedirectResponse
 import tensorflow as tf
 import uvicorn
-import numpy as np
-from typing import List
 import pandas as pd
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-# from models.SQLModels import Document
+from models.SQLModels import User
+from models import SQLModels
+from sqlalchemy.orm import Session
+from schemas import PDTSchemas
+from models.database import SessionLocal, engine
 
+SQLModels.Base.metadata.create_all(bind=engine)
+
+# from models.SQLModels import Document
 app = FastAPI()
 
-#Creating a class for the attributes input to the ML model.
-class Document(BaseModel):
-    text : str
-    prediction: List[float] = []
+def create_user(db: Session, user: PDTSchemas.UserCreate):
+    fake_hashed_password = user.password + "notreallyhashed"
+    db_user = User(email=user.email, hashed_password=fake_hashed_password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 def load_model():
     """
     Loads and returns the pretrained model
     """
-    model = tf.keras.models.load_model("./FastAPI_Backend/Conv1d")
+    model = tf.keras.models.load_model("Conv1d")
     print("Model loaded")
     return model
 
@@ -35,14 +46,19 @@ model = load_model()
 
 @app.get("/")
 def root():
-    return {"message": "Welcome from the API"}
+    response = RedirectResponse(url='/docs')
+    return response
+
+@app.post('/add_user', response_model=PDTSchemas.User)
+async def add_user(user: PDTSchemas.UserCreate, db: Session = Depends(get_db)):
+    create_user(db=db, user=user)
+    return {'Success' : 'user_created'}
 
 @app.post('/prediction')
 async def get_prediction():
     #Creating df with the row
     test_input = [('Because i am happy')]
     df = pd.DataFrame(test_input, columns=['content'])
-    print(df)
 
     #Make a prediction
     predictions = model.predict(df['content'])[0]

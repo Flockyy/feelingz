@@ -3,6 +3,8 @@ uvicorn
 pydantic
 keras
 numpy
+pandas
 tensorflow
 keras
 sqlalchemy
+psycopg2

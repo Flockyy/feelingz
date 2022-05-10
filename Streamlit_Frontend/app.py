@@ -28,12 +28,15 @@ def main():
     if choices == 'Prediction':
         
         st.header("Real-time prediction")
-        url_entities = "http://localhost:8555/prediction"      
+        url_get_pred = "http://host.docker.internal:8000/prediction"
+        url_add_user = "http://host.docker.internal:8000/add_user" 
 
+        if st.button(label='Add_User'):
+            response = requests.post(url = url_add_user, json={'email':'test@test.com' , 'password':'1234'}, timeout=5, verify=False )
+            st.success(response.text)
 
         if st.button(label='Predict'):
-            
-            response = requests.post(url = url_entities)
+            response = requests.post(url = url_get_pred, timeout=5, verify=False )
             st.success(response.text)
                     
 if __name__ == '__main__':
