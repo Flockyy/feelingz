@@ -1,4 +1,6 @@
+from unittest import result
 import streamlit as st 
+import requests
 # import altair as alt
 # import matplotlib.pyplot as plt
 # import seaborn as sns
@@ -26,15 +28,17 @@ def main():
     if choices == 'Prediction':
         
         st.header("Real-time prediction")
-        url_entities = "http://backend.docker:8000/prediction/"
-        
+        url_entities = "http://localhost:8555/prediction"      
+
+
         if st.button(label='Predict'):
-            prediction = url_entities
-            
-            if "Error" in prediction:
-                st.error(prediction)
-            else:
-                st.success(prediction)
+            response = requests.post(url = url_entities)
+
+            st.success(response.text)
+            # if "Error" in prediction:
+            #     st.error(prediction)
+            # else:
+            #     st.success(prediction)
                     
 if __name__ == '__main__':
     main()
