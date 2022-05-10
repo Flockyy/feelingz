@@ -32,13 +32,9 @@ def main():
 
 
         if st.button(label='Predict'):
+            
             response = requests.post(url = url_entities)
-
             st.success(response.text)
-            # if "Error" in prediction:
-            #     st.error(prediction)
-            # else:
-            #     st.success(prediction)
                     
 if __name__ == '__main__':
     main()
