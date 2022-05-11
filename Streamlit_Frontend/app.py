@@ -28,15 +28,35 @@ def main():
     if choices == 'Prediction':
         
         st.header("Real-time prediction")
+        
         url_get_pred = "http://host.docker.internal:8000/prediction"
         url_add_user = "http://host.docker.internal:8000/add_user" 
-
-        if st.button(label='Add_User'):
-            response = requests.post(url = url_add_user, json={'email':'test@test.com' , 'password':'1234'}, timeout=5, verify=False )
+        url_login_user = "http://host.docker.internal:8000/login" 
+        
+        with st.form(key='pred_form'):
+            input = st.text_input(label='Enter some text')
+            pred_button = st.form_submit_button(label='Submit')
+            
+        with st.form(key='user_form'):
+            email = st.text_input(label='Email')
+            password = st.text_input(label='Password')
+            user_create_button = st.form_submit_button(label='Submit')
+            
+        with st.form(key='login_form'):
+            email = st.text_input(label='Email')
+            password = st.text_input(label='Password')
+            user_login_button = st.form_submit_button(label='Submit')
+            
+        if pred_button:
+            response = requests.post(url = url_get_pred, json={'text': input})
             st.success(response.text)
-
-        if st.button(label='Predict'):
-            response = requests.post(url = url_get_pred, timeout=5, verify=False )
+            
+        if user_create_button:
+            response = requests.post(url = url_add_user, json={'email':email , 'password':password})
+            st.success(response.text)
+            
+        if user_login_button:
+            response = requests.post(url = url_login_user, json={'email':email , 'password':password})
             st.success(response.text)
                     
 if __name__ == '__main__':

@@ -1,13 +1,13 @@
 from typing import List, Optional
 from pydantic import BaseModel
 
-class ItemBase(BaseModel):
+class DocumentBase(BaseModel):
     text: str
 
-class ItemCreate(ItemBase):
+class DocumentCreate(DocumentBase):
     pass
 
-class Item(ItemBase):
+class Document(DocumentCreate):
     id: int
     owner_id: int
 
@@ -21,9 +21,10 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
-class User(UserBase):
+class User(UserCreate):
     id: int
     is_active: bool
-
+    Documents : list[Document] = []
+    
     class Config:
         orm_mode = True

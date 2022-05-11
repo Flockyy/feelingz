@@ -7,4 +7,6 @@ pandas
 tensorflow
 keras
 sqlalchemy
-psycopg2
+asyncio
+psycopg2-binary
+psycopg2 --no-binary psycopg2
