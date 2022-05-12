@@ -1,26 +1,27 @@
 # Core
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, status, HTTPException
 from starlette.responses import RedirectResponse
 import uvicorn
-import asyncio
 # Model
 import tensorflow as tf
 import pandas as pd
 from pydantic import BaseModel
+from typing import List
 
 # Database
 from sqlalchemy.orm import Session
-from schemas import PYDTchemas
-from models.SQLModels import create_user, get_user_by_email
-from models.database import SessionLocal, init_db
+from database import SessionLocal, engine
+import cruds
+import models
+
+# ========= Create database structure
+
+# models.Base.metadata.drop_all(bind=engine)
+models.Base.metadata.create_all(bind=engine)
 
 # ========= Launch app
 
 app = FastAPI()
-
-# ========= Create database structure
-
-init_db()
 
 # ========= Database dependency function
 
@@ -31,12 +32,10 @@ def get_db():
     finally:
         db.close()
 
+
 # ========= Model loading
 
 def load_model():
-    """
-    Loads and returns the pretrained model
-    """
     model = tf.keras.models.load_model("Conv1d")
     print("Model loaded")
     return model
@@ -53,64 +52,66 @@ def root():
 # ========= User related routes
 
 # ========= Add
-class tmpUser(BaseModel):
+
+class User(BaseModel):
+    f_name: str
+    l_name: str
     email: str
     password: str
     
 @app.post('/add_user')
-async def add_user(user: tmpUser, db: Session = Depends(get_db)):
-    """_summary_
+def add_user(user: User, db: Session = Depends(get_db)):
 
-    Args:
-        user (UserCreate): _description_
-        db (Session, optional): _description_. Defaults to Depends(get_db).
+    db_user = cruds.get_user_by_email(db=db, email=user.email)
 
-    Returns:
-        _type_: _description_
-    """
-    create_user(db=db, user=user)
-    return {'Success' : 'user_created'}
+    if db_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Email already exists')
 
+    else:
+        current_user = cruds.create_user(db=db, user=user)
+        return {'msg' : 'user_created',
+            'user_id' : current_user.id}
+    
 # ========= Login
 
+class LogUser(BaseModel):
+    email: str
+    password: str
+
 @app.post('/login')
-async def login(user: tmpUser, db: Session = Depends(get_db)):
-    """_summary_
+def login(user: LogUser, db: Session = Depends(get_db)):
 
-    Args:
-        user (UserCreate): _description_
-        db (Session, optional): _description_. Defaults to Depends(get_db).
-
-    Returns:
-        _type_: _description_
-    """
     # Find by mail
     
-    db_user = await get_user_by_email(db=db, email=user.email)
+    db_user = cruds.get_user_by_email(db=db, email=user.email)
     
     # Check password
-    
-    if db_user.password == user.password + "notreallyhashed":
-        user.is_active = 1
-        return {'Success': 'Connected'}
+
+    if db_user:
+        if db_user.password == user.password + "notreallyhashed":
+            return {'msg': 'connected',
+            'user_id' : db_user.id}
+        else:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Password don\'t match')
+
     else:
-        return {'Error': 'Connection failed'}
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Le compte n\'existe pas')
+
     
 # ========= Prediction routes
 
-# ========= Prediction
-
 class Input(BaseModel):
     text: str
-    
-@app.post('/prediction')
-async def make_prediction(input: Input):
-    """_summary_
+    user_id: int
+class Prediction(BaseModel):
+    text: str
+    results: str
+    best_result:  int
+    emotion: str
 
-    Returns:
-        _type_: _description_
-    """
-    # Creating df with the row
+@app.post('/prediction')
+def make_prediction(input: Input, db: Session = Depends(get_db)):
+
     text_input = [(input.text)]
     
     df = pd.DataFrame(text_input, columns=['content'])
@@ -118,14 +119,39 @@ async def make_prediction(input: Input):
     emotions = ['anger', 'fear', 'happy', 'sadness']
     
     # Make a prediction
+
     predictions = model.predict(df['content'])[0]
-    prediction = predictions.tolist()
+    results = predictions.tolist()
+    results_str = str(results)
+    best_result = max(results)
+    best_result_index = results.index(best_result)
+    emotion = emotions[best_result_index]
+
+    cruds.create_user_prediction(db=db, pred=Prediction(
+        text=input.text,
+        results=results_str,
+        best_result=best_result,
+        emotion=emotion,
+    ), user_id=input.user_id)
 
     return {
-        'Input': input,
-        'Emotions': emotions,
-        'Prediction': prediction,
+        'msg': 'added',
+        'input': input,
+        'emotions': emotions,
+        'prediction': results,
+        'best_pred': best_result,
+        'most_accurate_emotion': emotion
     }
 
+@app.get('/get_all_prediction/{id}')
+def make_prediction(id, db: Session = Depends(get_db)):
+
+    predictions = cruds.get_predictions_by_user(db=db, id=id)
+
+    return {
+        'msg': 'received',
+        'pred_list': predictions
+    }
+    
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8555)
