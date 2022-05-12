@@ -33,11 +33,12 @@ def main():
                         st.error('Email already exists')
 
                     else:
+                        st.session_state['f_name'] = response_json['f_name']
+                        st.session_state['l_name'] = response_json['l_name']
                         st.session_state['user_id'] = response_json['user_id']
+                        st.session_state['is_admin'] = response_json['is_admin']
                         st.session_state.is_active = True
                         st.experimental_rerun()
-                    
-                        
 
         else:
             with st.form(key='login_form'):
@@ -53,16 +54,20 @@ def main():
 
                     response = requests.post(url = url_login, json={'email':email , 'password':password})
                     response_json = response.json()
-
-                    if response.status_code == 200:
-                        st.session_state.is_active = True
-
-                        st.experimental_rerun()
-                    else:
+                    
+                    if response.status_code == 401:
                         st.error('Invalid credentials')
 
-    elif 'is_active' in st.session_state and st.session_state.is_active == True:
+                    else:
+                        st.session_state['f_name'] = response_json['f_name']
+                        st.session_state['l_name'] = response_json['l_name']
+                        st.session_state['user_id'] = response_json['user_id']
+                        st.session_state['is_admin'] = response_json['is_admin']
+                        st.session_state.is_active = True
+                        st.experimental_rerun()
 
+    elif 'is_active' in st.session_state and st.session_state.is_active != True and st.session_state.is_active == True:
+        st.sidebar.header(f'Welcome, {st.session_state.f_name} {st.session_state.l_name}')
         logout = st.sidebar.button('Logout')
         if logout:
             st.session_state.is_active = False
@@ -87,11 +92,14 @@ def main():
 
             if response_json['pred_list'] != []:
                 df = pd.DataFrame(response_json['pred_list'])
+                emotions_cnt = df.groupby(by=["emotion"]).count()[['id']].rename(columns={"id":"count"}).reset_index()
+                pie_fig = px.pie(emotions_cnt, names="emotion", values="count", hole=0.4)
+                
                 df = df.drop(['owner_id', 'best_result', 'id'], axis=1)
-                fig=px.bar(df['emotion'])
-                fig2=px.pie(df['emotion'])
-                st.write(fig2)
-                st.write(fig)
+                bar_fig=px.bar(df['emotion'])
+
+                st.write(bar_fig)
+                st.write(pie_fig)
 
             else:
                 st.write(data='nodata')
@@ -125,7 +133,73 @@ def main():
                         if response_json['msg']:
                             st.success('Prediction added')
                             st.experimental_rerun()
+    else : 
+        st.sidebar.header(f'Welcome, {st.session_state.f_name} {st.session_state.l_name}')
+        logout = st.sidebar.button('Logout')
+        if logout:
+            st.session_state.is_active = False
+            st.experimental_rerun()
 
+        activities = ["Home", "Data visualisation", "Patient management"]
+        st.sidebar.title("Navigation")
+        choices = st.sidebar.radio("",activities)
+        
+        if choices == 'Home':
+            st.header("About this application")
+            st.write("This application will report the Feeling associated to a sentence.")
+            st.markdown("""The NLP algorithm used is a custom one made by.""")
+            
+        if choices == 'Patient data':
+            # Add plot
+            st.header("Data visualisation based on Kaggle quora question and Data world twitter datasets")
+            url_get_all_pred = "http://host.docker.internal:8000/get_all_prediction/" + str(st.session_state.user_id)
+
+            response = requests.get(url = url_get_all_pred)
+            response_json = response.json()
+
+            if response_json['pred_list'] != []:
+                df = pd.DataFrame(response_json['pred_list'])
+                emotions_cnt = df.groupby(by=["emotion"]).count()[['id']].rename(columns={"id":"count"}).reset_index()
+                pie_fig = px.pie(emotions_cnt, names="emotion", values="count", hole=0.4)
+                
+                df = df.drop(['owner_id', 'best_result', 'id'], axis=1)
+                bar_fig=px.bar(df['emotion'])
+
+                st.write(bar_fig)
+                st.write(pie_fig)
+
+            else:
+                st.write(data='nodata')
+
+            
+        if choices == 'Prediction':
+            url_get_all_pred = "http://host.docker.internal:8000/get_all_prediction/" + str(st.session_state.user_id)
+            url_get_pred = "http://host.docker.internal:8000/prediction"
+
+            response = requests.get(url = url_get_all_pred)
+            response_json = response.json()
+
+            if response_json['pred_list'] != []:
+                df = pd.DataFrame(response_json['pred_list'])
+                df = df.drop(['owner_id', 'best_result', 'id', 'results', 'time_updated'], axis=1)
+                # st.table(data=df)
+                AgGrid(df)
+
+            else:
+                st.header('Please feel free to make your first prediction')
+            
+            with st.form(key='pred_form'):
+                with st.sidebar:
+                    st.sidebar.header("Real-time prediction")
+                    input = st.sidebar.text_input(label='Enter some text')
+                    pred_button = st.form_submit_button(label='Submit')
+
+                    if pred_button:
+                        response = requests.post(url = url_get_pred, json={'text': input, 'user_id': st.session_state.user_id})
+                        response_json = response.json()
+                        if response_json['msg']:
+                            st.success('Prediction added')
+                            st.experimental_rerun()
             
 if __name__ == '__main__':
     main()

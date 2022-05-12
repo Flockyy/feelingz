@@ -22,7 +22,6 @@ def create_user(db: Session, user: models.User):
     db.refresh(db_user)
     return db_user
 
-
 def get_predictions(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Prediction).offset(skip).limit(limit).all()
 
@@ -35,3 +34,4 @@ def create_user_prediction(db: Session, pred: models.Prediction, user_id: int):
     db.commit()
     db.refresh(db_item)
     return db_item
+

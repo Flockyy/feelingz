@@ -16,8 +16,9 @@ import models
 
 # ========= Create database structure
 
-# models.Base.metadata.drop_all(bind=engine)
+models.Base.metadata.drop_all(bind=engine)
 models.Base.metadata.create_all(bind=engine)
+
 
 # ========= Launch app
 
@@ -31,7 +32,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
 
 # ========= Model loading
 
@@ -58,7 +58,26 @@ class User(BaseModel):
     l_name: str
     email: str
     password: str
-    
+
+@app.on_event("startup")
+def on_startup():
+    db = SessionLocal()
+    admin = models.User(f_name='mr', l_name= 'zen', email='admin', password='1234notreallyhashed', is_admin=True)
+    db.add(admin)
+    guest = models.User(f_name='guest', l_name= 'guest', email='guest', password='1234notreallyhashed', is_admin=True)
+    db.add(guest)
+    db.commit()
+    db.refresh(admin)
+    db.refresh(guest)
+    print('Admin created')
+    print('Guest created')
+
+
+@app.get("/ping")
+async def pong():
+    return {"ping": "pong!"}
+
+
 @app.post('/add_user')
 def add_user(user: User, db: Session = Depends(get_db)):
 
@@ -69,8 +88,11 @@ def add_user(user: User, db: Session = Depends(get_db)):
 
     else:
         current_user = cruds.create_user(db=db, user=user)
-        return {'msg' : 'user_created',
-            'user_id' : current_user.id}
+        return {'msg': 'user_created',
+            'f_name': current_user.f_name,
+            'l_name': current_user.l_name,
+            'user_id': current_user.id,
+            'is_admin:': current_user.is_admin}
     
 # ========= Login
 
@@ -90,7 +112,10 @@ def login(user: LogUser, db: Session = Depends(get_db)):
     if db_user:
         if db_user.password == user.password + "notreallyhashed":
             return {'msg': 'connected',
-            'user_id' : db_user.id}
+            'f_name': db_user.f_name,
+            'l_name': db_user.l_name,
+            'user_id': db_user.id,
+            'is_admin': db_user.is_admin}
         else:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Password don\'t match')
 
