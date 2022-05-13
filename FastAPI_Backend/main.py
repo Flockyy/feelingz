@@ -16,7 +16,7 @@ import models
 
 # ========= Create database structure
 
-models.Base.metadata.drop_all(bind=engine)
+# models.Base.metadata.drop_all(bind=engine)
 models.Base.metadata.create_all(bind=engine)
 
 
@@ -62,15 +62,18 @@ class User(BaseModel):
 @app.on_event("startup")
 def on_startup():
     db = SessionLocal()
-    admin = models.User(f_name='mr', l_name= 'zen', email='admin', password='1234notreallyhashed', is_admin=True)
-    db.add(admin)
-    guest = models.User(f_name='guest', l_name= 'guest', email='guest', password='1234notreallyhashed', is_admin=True)
-    db.add(guest)
-    db.commit()
-    db.refresh(admin)
-    db.refresh(guest)
-    print('Admin created')
-    print('Guest created')
+    already_done = cruds.get_user(db=db, user_id=1)
+    
+    if not already_done:
+        admin = models.User(f_name='mr', l_name= 'zen', email='admin', password='1234notreallyhashed', is_admin=True)
+        db.add(admin)
+        guest = models.User(f_name='guest', l_name= 'guest', email='guest', password='1234notreallyhashed', is_admin=True)
+        db.add(guest)
+        db.commit()
+        db.refresh(admin)
+        db.refresh(guest)
+        print('Admin created')
+        print('Guest created')
 
 
 @app.get("/ping")
@@ -168,8 +171,8 @@ def make_prediction(input: Input, db: Session = Depends(get_db)):
         'most_accurate_emotion': emotion
     }
 
-@app.get('/get_all_prediction/{id}')
-def make_prediction(id, db: Session = Depends(get_db)):
+@app.get('/get_predictions_by_user/{id}')
+def get_predictions_by_user(id, db: Session = Depends(get_db)):
 
     predictions = cruds.get_predictions_by_user(db=db, id=id)
 
@@ -177,6 +180,49 @@ def make_prediction(id, db: Session = Depends(get_db)):
         'msg': 'received',
         'pred_list': predictions
     }
+class ModifyInput(BaseModel):
+    pred_id: int
+    text: str  
+
+@app.patch("/update_pred")
+def update_pred(input: ModifyInput, db: Session = Depends(get_db)):
+
+    text_input = [(input.text)]
+    df_pred = pd.DataFrame(text_input, columns=['content'])
+    predictions = model.predict(df_pred['content'])[0]
+
+    emotions = ['anger', 'fear', 'happy', 'sadness']
     
+    results = predictions.tolist()
+    results_str = str(results)
+    best_result = max(results)
+    best_result_index = results.index(best_result)
+    emotion = emotions[best_result_index]
+    print(input.pred_id)
+    old_prediction = db.query(models.Prediction).filter(models.Prediction.id == input.pred_id)
+    if not old_prediction.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'Old prediction with the id {input.pred_id} is not available')
+    old_prediction.update({'text':input.text, 'results':results_str, 'best_result':best_result, 'emotion':emotion})
+    db.commit()
+    db.refresh(old_prediction.first())
+    
+    return {
+        'msg': 'Updated',
+        'input': input.text,
+        'emotions': emotions,
+        'prediction': results,
+        'best_pred': best_result,
+        'most_accurate_emotion': emotion
+    }
+        
+@app.get('/get_all_users')
+def get_all_users(db: Session = Depends(get_db)):
+    
+    user_list = cruds.get_users(db=db)
+
+    return {
+        'user_list': user_list
+    }
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8555)
