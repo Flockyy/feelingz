@@ -16,9 +16,7 @@ import models
 
 # ========= Create database structure
 
-# models.Base.metadata.drop_all(bind=engine)
 models.Base.metadata.create_all(bind=engine)
-
 
 # ========= Launch app
 
