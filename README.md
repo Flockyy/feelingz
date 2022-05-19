@@ -1,12 +1,12 @@
 # Feelingz
-Requierement :
+## Requierement :
 
   * python > 3.9.7
   * Docker Desktop
   
-How to use : 
+## How to use : 
 
-  Fork the project and run the docker-compose up command
+  * Fork the project and run the docker-compose up command
   
 Feelingz is a project for someone who work as a coach of life
 
