@@ -5,6 +5,8 @@ import pandas as pd
 # from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 import plotly.express as px 
 
+#TODO: Separate if with some commentary 
+
 def main():
 
     if 'is_active' not in st.session_state or st.session_state.is_active == 0:
@@ -36,7 +38,7 @@ def main():
                         st.session_state['f_name'] = response_json['f_name']
                         st.session_state['l_name'] = response_json['l_name']
                         st.session_state['user_id'] = response_json['user_id']
-                        st.session_state['is_admin'] = response_json['is_admin']
+                        st.session_state['is_admin'] = 0
                         st.session_state.is_active = 1
                         st.experimental_rerun()
 
@@ -145,6 +147,7 @@ def main():
                 'Which text du you want to modify?',
                 (df['text'])
                 )
+                # st.write(response_json['pred_list'])
                 st.write('You selected:', option)
                 df_choice = df[df['text'] == option]
                 idx = df_choice.index[0]
@@ -154,9 +157,10 @@ def main():
                 else:
                     accurate_date = df_choice['time_created'][idx]
                     accurate_label = 'Date'
-                    
+                id = response_json['pred_list'][idx]['id']
+
                 with st.form(key='modify_text_form'):
-    
+                
                     url_modify_text = "http://host.docker.internal:8000/update_pred/"
                     st.write('Modify')
                     date = st.text_input(label=accurate_label, value=accurate_date, disabled=True)
@@ -165,7 +169,7 @@ def main():
                     modify_text_button = st.form_submit_button(label='Submit')
                     
                     if modify_text_button:
-                        response = requests.patch(url = url_modify_text, json={'pred_id': str(idx+1),'text': text})
+                        response = requests.patch(url = url_modify_text, json={'pred_id': str(id),'text': text})
                         st.success('Modified')
                         st.experimental_rerun()
                         

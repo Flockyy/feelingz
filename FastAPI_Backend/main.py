@@ -83,7 +83,18 @@ async def pong():
 
 @app.post('/add_user')
 def add_user(user: User, db: Session = Depends(get_db)):
+    """Create a user
 
+    Args:
+        user (User): User
+        db (Session, optional): db dependency. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException: 401 Email already exists
+
+    Returns:
+        _type_: User created status and user values
+    """
     db_user = cruds.get_user_by_email(db=db, email=user.email)
 
     if db_user:
@@ -105,7 +116,19 @@ class LogUser(BaseModel):
 
 @app.post('/login')
 def login(user: LogUser, db: Session = Depends(get_db)):
+    """Log user in
 
+    Args:
+        user (LogUser): Email and password
+        db (Session, optional): db dependency. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException: 401 Password don't match
+        HTTPException: 401 Account don't exists
+
+    Returns:
+        _type_: Connected status and user values
+    """
     # Find by mail
     
     db_user = cruds.get_user_by_email(db=db, email=user.email)
@@ -139,7 +162,15 @@ class Prediction(BaseModel):
 
 @app.post('/prediction')
 def make_prediction(input: Input, db: Session = Depends(get_db)):
+    """Model predict
 
+    Args:
+        input (Input): Necessary values for prediction
+        db (Session, optional): db dependency. Defaults to Depends(get_db).
+
+    Returns:
+        _type_: Added status and predicted values
+    """
     text_input = [(input.text)]
     
     df = pd.DataFrame(text_input, columns=['content'])
@@ -173,7 +204,15 @@ def make_prediction(input: Input, db: Session = Depends(get_db)):
 
 @app.get('/get_predictions_by_user/{id}')
 def get_predictions_by_user(id, db: Session = Depends(get_db)):
+    """Get all predictions of an user
 
+    Args:
+        id (_type_): User id
+        db (Session, optional): db dependency. Defaults to Depends(get_db).
+
+    Returns:
+        _type_: Received status and user predictions
+    """
     predictions = cruds.get_predictions_by_user(db=db, id=id)
 
     return {
@@ -186,7 +225,18 @@ class ModifyInput(BaseModel):
 
 @app.patch("/update_pred")
 def update_pred(input: ModifyInput, db: Session = Depends(get_db)):
+    """Update selected prediction
 
+    Args:
+        input (ModifyInput): input values for the prediction update
+        db (Session, optional): db dependency. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException: 404 (Old prediction not found)
+
+    Returns:
+        _type_: Updated status and predicted values
+    """
     text_input = [(input.text)]
     df_pred = pd.DataFrame(text_input, columns=['content'])
     predictions = model.predict(df_pred['content'])[0]
@@ -217,7 +267,14 @@ def update_pred(input: ModifyInput, db: Session = Depends(get_db)):
         
 @app.get('/get_all_users')
 def get_all_users(db: Session = Depends(get_db)):
-    
+    """get all users in db
+
+    Args:
+        db (Session, optional): db dependency. Defaults to Depends(get_db).
+
+    Returns:
+        _type_: User
+    """
     user_list = cruds.get_users(db=db)
 
     return {
