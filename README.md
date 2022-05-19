@@ -1,8 +1,8 @@
 # Feelingz
 Requierement :
 
-  python > 3.9.7
-  Docker Desktop
+  * python > 3.9.7
+  * Docker Desktop
   
 How to use : 
 
