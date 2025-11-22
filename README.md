@@ -344,10 +344,10 @@ Contributions are welcome!
 ### Contribution Guidelines
 
 1. Fork the repository
-2. Create feature branch (\git checkout -b feature/new-feature\)
-3. Test locally with \docker-compose up\
-4. Commit changes (\git commit -m 'Add feature'\)
-5. Push to branch (\git push origin feature/new-feature\)
+2. Create feature branch (`git checkout -b feature/new-feature`)
+3. Test locally with `docker-compose up`
+4. Commit changes (`git commit -m 'Add feature'`)
+5. Push to branch (`git push origin feature/new-feature`)
 6. Open Pull Request
 
 ---
