@@ -48,7 +48,9 @@ Docker Compose Orchestration
 │
 └── Conv1D NLP Model
     └── Keras Architecture
-```### Technology Stack
+```
+
+### Technology Stack
 
 | Component | Technologies |
 |-----------|-------------|
