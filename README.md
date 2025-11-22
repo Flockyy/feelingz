@@ -257,26 +257,26 @@ mlflow ui --backend-store-uri mlruns/
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| \POST\ | \/clients/\ | Create new client |
-| \GET\ | \/clients/\ | List all clients |
-| \GET\ | \/clients/{id}\ | Get client details |
-| \PUT\ | \/clients/{id}\ | Update client info |
-| \DELETE\ | \/clients/{id}\ | Delete client |
+| `POST` | \/clients/` | Create new client |
+| `GET` | \/clients/` | List all clients |
+| `GET` | \/clients/{id}` | Get client details |
+| `PUT` | \/clients/{id}` | Update client info |
+| `DELETE` | \/clients/{id}` | Delete client |
 
 ### Journal Entry Operations
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| \POST\ | \/entries/\ | Submit journal entry + predict emotion |
-| \GET\ | \/entries/{client_id}\ | Get all entries for client |
-| \PUT\ | \/entries/{id}\ | Edit entry text |
-| \DELETE\ | \/entries/{id}\ | Delete entry |
+| `POST` | \/entries/` | Submit journal entry + predict emotion |
+| `GET` | \/entries/{client_id}` | Get all entries for client |
+| `PUT` | \/entries/{id}` | Edit entry text |
+| `DELETE` | \/entries/{id}` | Delete entry |
 
 ### ML Prediction
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| \POST\ | \/predict/\ | Get emotion prediction for text |
+| `POST` | \/predict/` | Get emotion prediction for text |
 
 ### Example API Request
 
