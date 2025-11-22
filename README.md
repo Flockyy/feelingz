@@ -35,28 +35,20 @@
 ##  Architecture
 
 ```
-
-         Docker Compose Orchestration           
-                                                
-        
-    Streamlit          FastAPI         
-    Frontend               Backend         
-    Port: 8501             Port: 8000      
-                                           
-    Client views         CRUD API        
-    Coach dashboard      ML inference    
-    Data input           SQLite DB       
-        
-                                               
-                                   
-                            Conv1D            
-                           NLP Model          
-                           (Keras)            
-                                   
-
-```
-
-### Technology Stack
+Docker Compose Orchestration
+├── Streamlit Frontend (Port: 8501)
+│   ├── Client views
+│   ├── Coach dashboard
+│   └── Data input
+│
+├── FastAPI Backend (Port: 8000)
+│   ├── CRUD API
+│   ├── ML inference
+│   └── SQLite DB
+│
+└── Conv1D NLP Model
+    └── Keras Architecture
+```### Technology Stack
 
 | Component | Technologies |
 |-----------|-------------|
@@ -73,34 +65,34 @@
 
 ```
 feelingz/
- docker-compose.yml           # Orchestration configuration
- README.md
- FastAPI_Backend/
-    main.py                  # FastAPI application
-    models.py                # SQLAlchemy models
-    database.py              # DB session management
-    cruds.py                 # CRUD operations
-    requirements.txt         # Backend dependencies
-    Dockerfile               # Backend container
-    sql_app.db               # SQLite database
-    Conv1d/                  # Trained emotion model
-        saved_model.pb
-        keras_metadata.pb
-        variables/
- Streamlit_Frontend/
-    app.py                   # Streamlit UI application
-    requirements.txt         # Frontend dependencies
-    Dockerfile               # Frontend container
- flo/                         # Model development notebooks
-    eda.ipynb                # Exploratory data analysis
-    mod_keras.ipynb          # Keras model training
-    mod_hugging.ipynb        # HuggingFace experiments
- arnold/
-    texthero_partage_2.ipynb # Text preprocessing experiments
- theophile/
-    Projet_wordvectgo.ipynb  # Word2Vec implementation
-    Projet_wordvectJournal.ipynb
- mlruns/                      # MLflow experiment tracking
+├── docker-compose.yml
+├── README.md
+├── FastAPI_Backend/
+│   ├── main.py
+│   ├── models.py
+│   ├── database.py
+│   ├── cruds.py
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   ├── sql_app.db
+│   └── Conv1d/
+│       ├── saved_model.pb
+│       ├── keras_metadata.pb
+│       └── variables/
+├── Streamlit_Frontend/
+│   ├── app.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── flo/
+│   ├── eda.ipynb
+│   ├── mod_keras.ipynb
+│   └── mod_hugging.ipynb
+├── arnold/
+│   └── texthero_partage_2.ipynb
+├── theophile/
+│   ├── Projet_wordvectgo.ipynb
+│   └── Projet_wordvectJournal.ipynb
+└── mlruns/
 ```
 
 ---
