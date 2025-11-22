@@ -21,14 +21,14 @@
 
 ###  Key Features
 
-- ** NLP Emotion Detection**: CNN-based sentiment analysis trained on Kaggle + Twitter datasets
-- ** Daily Journal Tracking**: Clients submit daily text entries with automatic emotion classification
-- ** Analytics Dashboard**: Visual insights and trends for coaching professionals
-- ** Client Management**: CRUD operations for coach-client relationships
-- ** Docker Deployment**: Fully containerized with docker-compose for easy setup
-- ** Database Persistence**: SQLite backend for data storage
-- ** Interactive UI**: Clean Streamlit interface for users and coaches
-- ** RESTful API**: FastAPI backend with automatic OpenAPI documentation
+- **NLP Emotion Detection**: CNN-based sentiment analysis trained on Kaggle + Twitter datasets
+- **Daily Journal Tracking**: Clients submit daily text entries with automatic emotion classification
+- **Analytics Dashboard**: Visual insights and trends for coaching professionals
+- **Client Management**: CRUD operations for coach-client relationships
+- **Docker Deployment**: Fully containerized with docker-compose for easy setup
+- **Database Persistence**: SQLite backend for data storage
+- **Interactive UI**: Clean Streamlit interface for users and coaches
+- **RESTful API**: FastAPI backend with automatic OpenAPI documentation
 
 ---
 
