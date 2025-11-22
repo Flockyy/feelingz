@@ -1,4 +1,4 @@
-﻿#  Feelingz - Emotion Analysis Platform
+#  Feelingz - Emotion Analysis Platform
 <div align="center">
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
