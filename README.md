@@ -339,12 +339,7 @@ python FastAPI_Backend/database.py
 
 ##  Contributing
 
-This project was developed as a team collaboration for coursework. Contributions are welcome!
-
-**Team Members**:
-- **Florian** (flo/) - ML model development, Keras implementation
-- **Arnold** (arnold/) - Text preprocessing, texthero integration
-- **Théophile** (theophile/) - Word2Vec embeddings, NLP experiments
+Contributions are welcome!
 
 ### Contribution Guidelines
 
@@ -383,7 +378,5 @@ Feel free to try this app and send feedback! We appreciate your input for improv
 <div align="center">
 
 **[ Back to Top](#-feelingz---emotion-analysis-platform)**
-
-Made with  by [Florian Abgrall](https://github.com/Flockyy) & Team
 
 </div>
