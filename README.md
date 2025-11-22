@@ -34,7 +34,7 @@
 
 ##  Architecture
 
-\\\
+```
 
          Docker Compose Orchestration           
                                                 
@@ -54,7 +54,7 @@
                            (Keras)            
                                    
 
-\\\
+```
 
 ### Technology Stack
 
@@ -71,7 +71,7 @@
 
 ##  Project Structure
 
-\\\
+```
 feelingz/
  docker-compose.yml           # Orchestration configuration
  README.md
@@ -101,7 +101,7 @@ feelingz/
     Projet_wordvectgo.ipynb  # Word2Vec implementation
     Projet_wordvectJournal.ipynb
  mlruns/                      # MLflow experiment tracking
-\\\
+```
 
 ---
 
@@ -116,15 +116,15 @@ feelingz/
 ### Installation & Deployment
 
 1. **Clone the repository**
-\\\ash
+```ash
 git clone https://github.com/Flockyy/feelingz.git
 cd feelingz
-\\\
+```
 
 2. **Launch with Docker Compose**
-\\\ash
+```ash
 docker-compose up --build
-\\\
+```
 
 This will start:
 - **FastAPI Backend**: http://localhost:8000
@@ -139,26 +139,26 @@ This will start:
 <details>
 <summary><b>Backend Setup</b> (Click to expand)</summary>
 
-\\\ash
+```ash
 cd FastAPI_Backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
-\\\
+```
 
 </details>
 
 <details>
 <summary><b>Frontend Setup</b> (Click to expand)</summary>
 
-\\\ash
+```ash
 cd Streamlit_Frontend
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 streamlit run app.py --server.port 8501
-\\\
+```
 
 </details>
 
@@ -206,7 +206,7 @@ streamlit run app.py --server.port 8501
 ### Architecture
 
 **Conv1D Neural Network for Text Classification**:
-\\\python
+```python
 Model: Sequential
 - Embedding Layer (Word2Vec pre-trained)
 - Conv1D (128 filters, kernel size 5, ReLU)
@@ -214,7 +214,7 @@ Model: Sequential
 - Dense (64 units, ReLU)
 - Dropout (0.5)
 - Dense (6 units, Softmax)  # 6 emotion classes
-\\\
+```
 
 ### Training Data
 
@@ -241,13 +241,13 @@ Model: Sequential
 
 ### Retraining (Advanced)
 
-\\\ash
+```ash
 # Explore training notebooks in flo/ directory
 jupyter notebook flo/mod_keras.ipynb
 
 # Run MLflow tracking
 mlflow ui --backend-store-uri mlruns/
-\\\
+```
 
 ---
 
@@ -280,7 +280,7 @@ mlflow ui --backend-store-uri mlruns/
 
 ### Example API Request
 
-\\\ash
+```ash
 # Predict emotion from text
 curl -X POST http://localhost:8000/predict/ \\
   -H "Content-Type: application/json" \\
@@ -288,7 +288,7 @@ curl -X POST http://localhost:8000/predict/ \\
 
 # Response:
 # {"emotion": "joy", "confidence": 0.92, "probabilities": {...}}
-\\\
+```
 
 ---
 
@@ -296,7 +296,7 @@ curl -X POST http://localhost:8000/predict/ \\
 
 ### docker-compose.yml
 
-\\\yaml
+```yaml
 version: '3.8'
 services:
   backend:
@@ -316,7 +316,7 @@ services:
       - backend
     environment:
       - BACKEND_URL=http://backend:8000
-\\\
+```
 
 ---
 
@@ -324,22 +324,22 @@ services:
 
 ### Running Tests
 
-\\\ash
+```ash
 # Backend tests
 cd FastAPI_Backend
 pytest tests/ -v
 
 # Model evaluation
 python -m notebooks.flo.mod_keras
-\\\
+```
 
 ### Database Management
 
-\\\ash
+```ash
 # Reset database
 rm FastAPI_Backend/sql_app.db
 python FastAPI_Backend/database.py
-\\\
+```
 
 ---
 
